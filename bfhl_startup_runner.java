@@ -112,9 +112,20 @@ public class StartupRunner implements CommandLineRunner {
     }
     
     private String getQuestion2Solution() {
-        // Replace this with the actual SQL query for Question 2
-        // Download the PDF from the even link and solve the problem
-        return "SELECT * FROM table_name WHERE condition = 'value'";
+        // Question 2: Department-wise average age and employee list for salaries > 70,000
+        return "WITH HighEarners AS (" +
+               "SELECT DISTINCT e.EMP_ID, e.FIRST_NAME, e.LAST_NAME, e.DOB, " +
+               "e.DEPARTMENT, d.DEPARTMENT_ID, d.DEPARTMENT_NAME, " +
+               "TIMESTAMPDIFF(YEAR, e.DOB, CURDATE()) AS AGE " +
+               "FROM EMPLOYEE e " +
+               "INNER JOIN DEPARTMENT d ON e.DEPARTMENT = d.DEPARTMENT_ID " +
+               "INNER JOIN PAYMENTS p ON e.EMP_ID = p.EMP_ID " +
+               "WHERE p.AMOUNT > 70000) " +
+               "SELECT DEPARTMENT_NAME, ROUND(AVG(AGE), 2) AS AVERAGE_AGE, " +
+               "GROUP_CONCAT(CONCAT(FIRST_NAME, ' ', LAST_NAME) ORDER BY EMP_ID SEPARATOR ', ') AS EMPLOYEE_LIST " +
+               "FROM HighEarners " +
+               "GROUP BY DEPARTMENT_ID, DEPARTMENT_NAME " +
+               "ORDER BY DEPARTMENT_ID DESC";
     }
     
     private boolean submitSolution(String accessToken, String finalQuery) {
